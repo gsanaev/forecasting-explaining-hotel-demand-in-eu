@@ -1,0 +1,67 @@
+name: 📅 Wochenplanung
+description: Template für wöchentliche Projektplanung
+title: "[WEEK] Planung KW "
+labels: ["type: planning", "priority: low"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📅 Wochenplanung
+        Nutzen Sie diese Vorlage für Ihre wöchentliche Projektplanung.
+  
+  - type: textarea
+    id: last_week
+    attributes:
+      label: Rückblick letzte Woche
+      description: Was wurde erreicht? Was war herausfordernd?
+      placeholder: |
+        Erreicht:
+        - ✅ Task 1 abgeschlossen
+        - ✅ Task 2 abgeschlossen
+        
+        Herausforderungen:
+        - ⚠️ Problem X aufgetreten
+        - ❓ Frage zu Y offen
+  
+  - type: textarea
+    id: this_week_goals
+    attributes:
+      label: Ziele für diese Woche
+      description: Was soll diese Woche erreicht werden?
+      placeholder: |
+        Hauptziele:
+        1. Ziel 1
+        2. Ziel 2
+        3. Ziel 2
+    validations:
+      required: true
+  
+  - type: checkboxes
+    id: this_week_tasks
+    attributes:
+      label: Konkrete Aufgaben diese Woche
+      options:
+        - label: "Task 1 (geschätzt: X Stunden)"
+        - label: "Task 2 (geschätzt: X Stunden)"
+        - label: "Task 3 (geschätzt: X Stunden)"
+  
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Potentielle Blocker
+      description: Was könnte den Fortschritt behindern?
+      placeholder: |
+        - Daten noch nicht verfügbar
+        - Unklarheit über Requirement X
+        - Benötige Hilfe bei Problem Y
+  
+  - type: textarea
+    id: questions
+    attributes:
+      label: Offene Fragen
+      description: Was muss geklärt werden?
+      placeholder: |
+        - Frage 1 an Kursleiter
+        - Frage 2 zur Methodik
+        - Frage 3 zu Tools

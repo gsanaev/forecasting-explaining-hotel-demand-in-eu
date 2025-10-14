@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "ms-toolsai.jupyter",
+        "ms-python.python",
+        "tamasfe.even-better-toml",
+        "charliermarsh.ruff",
+    ],
+}

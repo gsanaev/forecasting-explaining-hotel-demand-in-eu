@@ -1,0 +1,63 @@
+name: 📈 Visualization & Reporting
+description: Template für Visualisierung und Berichterstellung
+title: "[VIZ] "
+labels: ["type: docs", "priority: medium"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📈 Visualization & Reporting
+        Nutzen Sie diese Vorlage für Visualisierungen und Berichte.
+  
+  - type: textarea
+    id: objective
+    attributes:
+      label: Ziel
+      description: Was soll visualisiert oder berichtet werden?
+      placeholder: z.B. "Modellergebnisse für Stakeholder aufbereiten"
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Zielgruppe
+      options:
+        - "Technische Audience (Data Scientists)"
+        - "Business Stakeholder"
+        - "Gemischte Audience"
+        - "Kursleiter/Bewertung"
+  
+  - type: checkboxes
+    id: deliverables
+    attributes:
+      label: Zu erstellende Inhalte (anpassen nach Bedarf)
+      options:
+        - label: Explorative Visualisierungen
+        - label: Modell-Performance Plots
+        - label: Business Impact Visualisierung
+        - label: Executive Summary
+        - label: Technische Dokumentation
+        - label: Präsentationsfolien
+        - label: Dashboard/Interactive Plots
+  
+  - type: textarea
+    id: key_insights
+    attributes:
+      label: Wichtigste Erkenntnisse
+      description: Was sind die Hauptbotschaften?
+      placeholder: |
+        - Insight 1
+        - Insight 2
+        - Recommendation 1
+  
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Akzeptanzkriterien
+      placeholder: |
+        - [ ] Visualisierungen sind aussagekräftig
+        - [ ] Story ist klar kommuniziert
+        - [ ] Technische Details sind dokumentiert
+        - [ ] Präsentation ist vorbereitet

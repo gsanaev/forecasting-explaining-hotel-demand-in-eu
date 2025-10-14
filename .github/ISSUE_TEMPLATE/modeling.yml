@@ -1,0 +1,67 @@
+name: 🤖 Modeling & Analysis
+description: Template für Machine Learning und Analyse-Aufgaben
+title: "[MODEL] "
+labels: ["type: modeling", "priority: high"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🤖 Modeling & Analysis
+        Nutzen Sie diese Vorlage für ML-Modelling und statistische Analysen.
+  
+  - type: textarea
+    id: objective
+    attributes:
+      label: Ziel
+      description: Was soll mit dieser Aufgabe erreicht werden?
+      placeholder: z.B. "Baseline-Modell für Klassifikationsproblem entwickeln"
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: model_type
+    attributes:
+      label: Art der Analyse
+      options:
+        - "Supervised Learning (Klassifikation)"
+        - "Supervised Learning (Regression)"
+        - "Unsupervised Learning (Clustering)"
+        - "Unsupervised Learning (Dimensionsreduktion)"
+        - "Zeitreihenanalyse"
+        - "Statistische Analyse"
+        - "Andere"
+  
+  - type: checkboxes
+    id: tasks
+    attributes:
+      label: Modeling-Schritte (anpassen nach Bedarf)
+      options:
+        - label: Baseline-Modell implementiert
+        - label: Feature Selection durchgeführt
+        - label: Verschiedene Algorithmen getestet
+        - label: Hyperparameter optimiert
+        - label: Cross-Validation durchgeführt
+        - label: Modell evaluiert und verglichen
+        - label: Ergebnisse interpretiert
+  
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Evaluation Metrics
+      description: Welche Metriken sind für dieses Problem relevant?
+      placeholder: |
+        - Accuracy/F1-Score
+        - ROC-AUC
+        - Mean Squared Error
+        - Business Metrics
+  
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Akzeptanzkriterien
+      placeholder: |
+        - [ ] Modell erreicht Baseline-Performance
+        - [ ] Evaluation ist durchgeführt
+        - [ ] Ergebnisse sind interpretiert
+        - [ ] Code ist dokumentiert

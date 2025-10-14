@@ -1,0 +1,5 @@
+*.ipynb filter=nbstripout   # Apply nbstripout filter to all Jupyter notebooks
+*.zpln filter=nbstripout    # Apply nbstripout filter to all ZPLN files
+*.ipynb diff=ipynb          # Use ipynb diff for Jupyter notebooks
+
+*final.ipynb -filter        # Exclude final notebooks from nbstripout

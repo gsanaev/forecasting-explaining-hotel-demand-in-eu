@@ -1,0 +1,65 @@
+name: ❓ Frage/Hilfe
+description: Template für Fragen und Hilfestellungen
+title: "[QUESTION] "
+labels: ["status: question", "priority: medium"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ❓ Frage oder Hilfestellung
+        Nutzen Sie diese Vorlage, wenn Sie Hilfe benötigen oder Fragen haben.
+  
+  - type: dropdown
+    id: category
+    attributes:
+      label: Kategorie
+      options:
+        - "Technisches Problem"
+        - "Methodische Frage"
+        - "Tool/Library Hilfe"
+        - "Projekt-Strategie"
+        - "Daten-Problem"
+        - "Andere"
+    validations:
+      required: true
+  
+  - type: textarea
+    id: question
+    attributes:
+      label: Ihre Frage
+      description: Beschreiben Sie Ihr Problem oder Ihre Frage so detailliert wie möglich
+      placeholder: "Beschreiben Sie hier Ihr Problem..."
+    validations:
+      required: true
+  
+  - type: textarea
+    id: context
+    attributes:
+      label: Kontext
+      description: Relevante Hintergrundinformationen
+      placeholder: |
+        - Was haben Sie bereits versucht?
+        - Welche Tools/Libraries verwenden Sie?
+        - Relevante Code-Snippets oder Fehlermeldungen
+  
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Ergebnis
+      description: Was sollte passieren?
+  
+  - type: textarea
+    id: actual
+    attributes:
+      label: Tatsächliches Ergebnis
+      description: Was passiert stattdessen?
+  
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Dringlichkeit
+      options:
+        - "Niedrig - kann warten"
+        - "Mittel - diese Woche"
+        - "Hoch - blockiert Fortschritt"

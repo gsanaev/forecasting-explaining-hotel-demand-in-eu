@@ -1,0 +1,59 @@
+name: 📊 Data Collection & Exploration
+description: Template für Datensammlung und erste Exploration
+title: "[DATA] "
+labels: ["type: data", "priority: medium"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📊 Datensammlung & Exploration
+        Nutzen Sie diese Vorlage für alle Aufgaben rund um Datenbeschaffung und erste Analyse.
+  
+  - type: textarea
+    id: objective
+    attributes:
+      label: Ziel
+      description: Was soll mit dieser Aufgabe erreicht werden?
+      placeholder: z.B. "Datensatz für Kundenanalyse beschaffen und ersten Überblick gewinnen"
+    validations:
+      required: true
+  
+  - type: checkboxes
+    id: tasks
+    attributes:
+      label: Aufgaben (anpassen nach Bedarf)
+      options:
+        - label: Datenquellen identifiziert
+        - label: Datensatz heruntergeladen/verbunden
+        - label: Erste Datenexploration durchgeführt
+        - label: Datenqualität bewertet
+        - label: Dokumentation erstellt
+  
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Akzeptanzkriterien
+      description: Wann ist diese Aufgabe erfolgreich abgeschlossen?
+      placeholder: |
+        - [ ] Datensatz ist verfügbar und zugänglich
+        - [ ] Basis-Statistiken sind berechnet
+        - [ ] Datenqualitätsprobleme sind identifiziert
+        - [ ] EDA-Notebook ist erstellt
+  
+  - type: dropdown
+    id: estimated_time
+    attributes:
+      label: Geschätzte Arbeitszeit
+      options:
+        - "< 2 Stunden"
+        - "2-4 Stunden"
+        - "4-8 Stunden"
+        - "1-2 Tage"
+        - "> 2 Tage"
+  
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notizen
+      description: Zusätzliche Informationen, Links, etc.

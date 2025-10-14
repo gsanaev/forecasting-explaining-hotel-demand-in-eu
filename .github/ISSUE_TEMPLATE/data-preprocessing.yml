@@ -1,0 +1,53 @@
+name: 🧹 Data Preprocessing
+description: Template für Datenbereinigung und -vorbereitung
+title: "[PREP] "
+labels: ["type: data", "priority: medium"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧹 Data Preprocessing
+        Nutzen Sie diese Vorlage für Datenbereinigung und Vorverarbeitung.
+  
+  - type: textarea
+    id: objective
+    attributes:
+      label: Ziel
+      description: Was soll mit dieser Aufgabe erreicht werden?
+      placeholder: z.B. "Rohdaten bereinigen und für Modellierung vorbereiten"
+    validations:
+      required: true
+  
+  - type: checkboxes
+    id: tasks
+    attributes:
+      label: Typische Preprocessing-Schritte (anpassen nach Bedarf)
+      options:
+        - label: Missing Values behandelt
+        - label: Ausreißer identifiziert und behandelt
+        - label: Feature Engineering durchgeführt
+        - label: Daten normalisiert/skaliert
+        - label: Kategorische Variablen encodiert
+        - label: Train-Test-Split erstellt
+        - label: Pipeline dokumentiert
+  
+  - type: textarea
+    id: data_issues
+    attributes:
+      label: Identifizierte Datenprobleme
+      description: Welche Probleme wurden in den Rohdaten gefunden?
+      placeholder: |
+        - Missing Values in Spalte X (15%)
+        - Ausreißer in Variable Y
+        - Inkonsistente Kategorien in Z
+  
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Akzeptanzkriterien
+      placeholder: |
+        - [ ] Sauberer Datensatz liegt vor
+        - [ ] Preprocessing-Pipeline ist dokumentiert
+        - [ ] Datenqualität ist validiert
+        - [ ] Code ist reproduzierbar
