@@ -5,3 +5,5 @@ data
 *.ipynb
 *.docx
 data/
+
+!notebooks/01-data-exploration.ipynb
