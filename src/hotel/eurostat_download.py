@@ -150,6 +150,9 @@ def main():
     turnover = fetch_dataset("sts_setu_m", "turnover_index", TURNOVER_F)
     print(f"✅ Turnover: {len(turnover):,}")
 
+
+
+
     # Align all to month start
     for df_ in [hotels, gdp, unemp, turnover]:
         if not df_.empty:

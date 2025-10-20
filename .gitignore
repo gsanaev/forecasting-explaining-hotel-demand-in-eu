@@ -1,9 +1,32 @@
-__pycache__
-
-data
+# OS / editor files
 .DS_Store
-*.ipynb
-*.docx
-data/
+.vscode/
+.idea/
 
-!notebooks/01-data-exploration.ipynb
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Notebooks checkpoints
+*.ipynb_checkpoints/
+
+# Data folders
+data/raw/
+data/processed/
+outputs/
+models/
+figures/
+
+# Docs and temp files
+*.log
+*.tmp
+*.bak
+uv.lock
