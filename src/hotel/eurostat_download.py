@@ -1,18 +1,23 @@
 """
 eurostat_download.py
 --------------------
-Downloads long-term Eurostat datasets for the European hotel industry (2015–2025).
+Downloads long-term Eurostat datasets for the European hotel industry (raw 2015–2025+ data, unaltered).
 
 Includes:
-  - nights spent at tourist accommodation (tour_occ_nim)
-  - GDP (namq_10_gdp quarterly verified, nama_10_gdp fallback)
+  - nights spent (tour_occ_nim)
+  - GDP (namq_10_gdp quarterly, nama_10_gdp annual)
   - unemployment rate (une_rt_m)
-  - NEW: turnover index in hospitality sector (sts_setu_m)
+  - turnover index (sts_setu_m)
+  - HICP (prc_hicp_midx)
 """
 
 from pathlib import Path
 import pandas as pd
 from eurostat import get_data_df
+from datetime import datetime
+
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pandas")
 
 # ---------------------------------------------------------------------
 # CONFIGURATION
@@ -67,15 +72,13 @@ def fetch_dataset(code, value_col, filters):
 # MAIN
 # ---------------------------------------------------------------------
 def main():
-    print("📥 Downloading Eurostat datasets (2015–2025)...")
+    print("📥 Downloading Eurostat datasets...")
 
     # --- Nights spent ---
     hotels = fetch_dataset("tour_occ_nim", "nights_spent", {})
     print(f"✅ Hotels: {len(hotels):,}")
 
-    # -----------------------------------------------------------------
-    # GDP: verified quarterly source + fallback annual
-    # -----------------------------------------------------------------
+    # --- GDP: quarterly + fallback annual ---
     print("📊 Fetching GDP (quarterly + annual fallback)...")
 
     q_filters = {
@@ -85,50 +88,19 @@ def main():
     }
     gdp_q = fetch_dataset("namq_10_gdp", "gdp", q_filters)
 
+    # ❌ Removed: interpolation to monthly to preserve raw data
     if not gdp_q.empty:
         gdp_q = gdp_q.drop_duplicates(subset=["region", "time"])
-        gdp_q = (
-            gdp_q.groupby("region", group_keys=False)
-            .apply(lambda d: (
-                d.set_index("time")[["gdp"]]
-                .sort_index()
-                .resample("MS")
-                .interpolate("linear")
-                .assign(region=d["region"].iloc[0])
-                .reset_index()
-            ))
-            .reset_index(drop=True)
-        )
-        print(f"✅ Quarterly GDP interpolated to monthly → {len(gdp_q):,} rows")
+        print(f"✅ Quarterly GDP: {len(gdp_q):,} rows")
     else:
         print("⚠️ Quarterly GDP missing, attempting annual fallback...")
 
-    # Annual fallback
-    if gdp_q.empty or gdp_q["time"].max() < pd.Timestamp("2024-12-01"):
-        a_filters = {"na_item": ["B1G"], "unit": ["CLV10_MEUR"], "s_adj": ["NSA"]}
-        gdp_a = fetch_dataset("nama_10_gdp", "gdp", a_filters)
-        if not gdp_a.empty:
-            gdp_a = (
-                gdp_a.groupby("region", group_keys=False)
-                .apply(lambda d: (
-                    d.set_index("time")[["gdp"]]
-                    .sort_index()
-                    .resample("MS")
-                    .interpolate("linear")
-                    .assign(region=d["region"].iloc[0])
-                    .reset_index()
-                ))
-                .reset_index(drop=True)
-            )
-            gdp = (
-                pd.concat([gdp_q, gdp_a], ignore_index=True)
-                .drop_duplicates(subset=["region", "time"], keep="first")
-            )
-            print(f"✅ GDP (quarterly + annual combined): {len(gdp):,} rows")
-        else:
-            gdp = gdp_q
-    else:
-        gdp = gdp_q
+    a_filters = {"na_item": ["B1G"], "unit": ["CLV10_MEUR"], "s_adj": ["NSA"]}
+    gdp_a = fetch_dataset("nama_10_gdp", "gdp", a_filters)
+    gdp = (
+        pd.concat([gdp_q, gdp_a], ignore_index=True)
+        .drop_duplicates(subset=["region", "time"], keep="first")
+    )
 
     gdp["region"] = gdp["region"].str.upper().str.strip()
     gdp["time"] = gdp["time"].dt.to_period("M").dt.to_timestamp("M", "start")
@@ -137,24 +109,29 @@ def main():
     unemp = fetch_dataset("une_rt_m", "unemployment_rate", UNEMP_F)
     print(f"✅ Unemployment: {len(unemp):,}")
 
-    # -----------------------------------------------------------------
-    # 💼 NEW: Turnover in hospitality sector (sts_setu_m)
-    # -----------------------------------------------------------------
+    # --- Turnover ---
     print("🏨 Fetching hospitality turnover index...")
     TURNOVER_F = {
         "indic_bt": ["NETTUR"],
-        "nace_r2": ["I", "I55", "I56"],  # total + accommodation + food services
-        "s_adj": ["CA"],                 # calendar adjusted
-        "unit": ["I21"],                 # index (2021=100)
+        "nace_r2": ["I", "I55", "I56"],
+        "s_adj": ["CA"],
+        "unit": ["I21"],
     }
     turnover = fetch_dataset("sts_setu_m", "turnover_index", TURNOVER_F)
     print(f"✅ Turnover: {len(turnover):,}")
 
+    # --- HICP ---
+    print("💶 Fetching HICP (Harmonised Index of Consumer Prices)...")
+    HICP_F = {
+        "coicop": ["CP00"],
+        "unit": ["I15", "I21"],
+        "geo": list(EU),
+    }
+    hicp = fetch_dataset("prc_hicp_midx", "hicp_index", HICP_F)
+    print(f"✅ HICP: {len(hicp):,}")
 
-
-
-    # Align all to month start
-    for df_ in [hotels, gdp, unemp, turnover]:
+    # --- Align all to month start ---
+    for df_ in [hotels, gdp, unemp, turnover, hicp]:
         if not df_.empty:
             df_["time"] = df_["time"].dt.to_period("M").dt.to_timestamp("M", "start")
 
@@ -163,14 +140,17 @@ def main():
         hotels.merge(gdp, on=["region", "time"], how="left")
         .merge(unemp, on=["region", "time"], how="left")
         .merge(turnover, on=["region", "time"], how="left")
+        .merge(hicp, on=["region", "time"], how="left")
         .drop_duplicates(["region", "time"])
     )
 
-    merged = merged[merged["time"].between("2015-01-01", "2025-12-31")]
+    # ✅ Keep only data from 2015-01-01 until today
+    today = datetime.now().strftime("%Y-%m-%d")
+    merged = merged[merged["time"].between("2015-01-01", today)]
+
     merged.to_csv(OUT, index=False)
     print(f"💾 Saved → {OUT.resolve()} ({len(merged):,} rows)")
 
-    # --- Completeness summary ---
     merged["year"] = merged["time"].dt.year
     cols = ["nights_spent", "gdp", "unemployment_rate", "turnover_index"]
     summary = merged.groupby("year")[cols].apply(lambda x: x.notna().mean().round(2))
