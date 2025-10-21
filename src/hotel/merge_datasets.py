@@ -121,7 +121,9 @@ def merge_datasets():
     # -----------------------------------------------------------------
     pol_path = RAW / "policy_stringency.csv"
     if pol_path.exists():
-        stringency = pd.read_csv(pol_path, parse_dates=["time"])
+        stringency = pd.read_csv("data/raw/policy_stringency.csv", parse_dates=["month"])
+        stringency["month"] = stringency["month"].dt.to_period("M").dt.to_timestamp("M", "start")
+                        
         if "month" not in stringency.columns:
             stringency["month"] = stringency["time"].dt.to_period("M").dt.to_timestamp("M", "start")
 

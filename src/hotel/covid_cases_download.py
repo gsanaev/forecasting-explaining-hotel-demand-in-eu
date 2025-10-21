@@ -48,9 +48,16 @@ def download_covid_cases():
         .rename(columns={"iso_code": "iso3"})
     )
 
+    # --- Filter to EU countries only (ISO3) ---
+    EU3 = [
+        "AUT","BEL","BGR","CYP","CZE","DEU","DNK","EST","ESP","FIN","FRA","GRC","HRV","HUN",
+        "IRL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK"
+    ]
+    monthly_full = monthly[monthly["iso3"].isin(EU3)]
+
     # --- Save ---
-    monthly.to_csv(OUT, index=False)
-    print(f"💾 Saved {len(monthly):,} monthly records → {OUT.resolve()}")
+    monthly_full.to_csv(OUT, index=False)
+    print(f"💾 Saved EU-only dataset → {OUT.resolve()} ({len(monthly_full):,} rows, {monthly_full['iso3'].nunique()} countries)")
 
     # --- Quick summary ---
     covid_years = monthly[monthly["month"].dt.year.between(2020, 2022)]

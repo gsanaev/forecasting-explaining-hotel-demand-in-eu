@@ -2,9 +2,9 @@
 policy_stringency_download.py
 -----------------------------
 Downloads Oxford COVID-19 Government Response Tracker (OxCGRT)
-policy stringency index (0–100), keeps daily values, filters EU countries.
+policy stringency index (0–100) and aggregates it to monthly MEAN values per country.
 
-Output: data/raw/policy_stringency.csv
+Outputs: data/raw/policy_stringency.csv
 """
 
 from pathlib import Path
@@ -14,12 +14,6 @@ OUT = Path("data/raw/policy_stringency.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 URL = "https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker/master/data/OxCGRT_nat_latest.csv"
-
-# EU ISO3 codes (consistent with Eurostat data)
-EU3 = [
-    "AUT","BEL","BGR","CYP","CZE","DEU","DNK","EST","ESP","FIN","FRA","GRC","HRV","HUN",
-    "IRL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK"
-]
 
 
 def main(force=False):
@@ -42,21 +36,37 @@ def main(force=False):
         raise ValueError(f"No recognized stringency column found. Columns: {df.columns[:20].tolist()}")
 
     # Select relevant columns
-    df = df[["CountryCode", "Date", str_col]].rename(columns={str_col: "policy_stringency"})
+    cols = ["CountryCode", "Date", str_col]
+    df = df[cols].rename(columns={str_col: "policy_stringency"})
 
-    # Parse date safely
-    df["Date"] = df["Date"].astype(str).str.zfill(8)
-    df["time"] = pd.to_datetime(df["Date"], format="%Y%m%d", errors="coerce")
-    df = df.dropna(subset=["time"])
+    # Parse date correctly
+    df["Date"] = df["Date"].astype(str).str.zfill(8)  # ensure YYYYMMDD
+    df["date"] = pd.to_datetime(df["Date"], format="%Y%m%d", errors="coerce")
+    df = df.dropna(subset=["date"])
 
-    # ✅ Filter to EU countries (safe, logical restriction)
-    df = df[df["CountryCode"].isin(EU3)]
+    # Convert to monthly mean
+    df["month"] = df["date"].dt.to_period("M").dt.to_timestamp("M", "start")
+    monthly = (
+        df.groupby(["CountryCode", "month"], as_index=False)
+        .agg({"policy_stringency": "mean"})  # 👈 monthly mean of daily index
+        .rename(columns={"CountryCode": "region"})
+    )
 
-    # Save raw (daily, EU-only) dataset
-    df.to_csv(OUT, index=False)
-    print(f"💾 Saved → {OUT.resolve()} ({len(df):,} rows)")
-    print(f"🗓️ Coverage: {df['time'].min().date()} → {df['time'].max().date()} | Countries: {df['CountryCode'].nunique()}")
-    print(df.head(3))
+    # Filter to EU only (ISO3)
+    EU3 = [
+        "AUT","BEL","BGR","CYP","CZE","DEU","DNK","EST","ESP","FIN","FRA","GRC","HRV","HUN",
+        "IRL","ITA","LTU","LUX","LVA","MLT","NLD","POL","PRT","ROU","SWE","SVN","SVK"
+    ]
+    monthly = monthly[monthly["region"].isin(EU3)]
+
+    # Save
+    monthly.to_csv(OUT, index=False)
+    print(f"💾 Saved → {OUT.resolve()} ({len(monthly):,} rows, {monthly['region'].nunique()} EU countries)")
+    print(f"🗓️ Coverage: {monthly['month'].min().date()} → {monthly['month'].max().date()}")
+
+    # Quick sanity check
+    print("\n📊 Sample (2020):")
+    print(monthly[monthly['month'].dt.year == 2020].head())
 
 
 if __name__ == "__main__":
