@@ -7676,6 +7676,94 @@ Build and compare advanced forecasting models (SARIMAX, XGBoost, LightGBM, LSTM)
 </div>
 </div>
 </div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=74b5e8ca">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=62045d9b">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ============================================================</span>
+<span class="c1"># ⚡️ Train XGBoost Model (for predictions export to Notebook 5)</span>
+<span class="c1"># ============================================================</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xgboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBRegressor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.compose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnTransformer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">OneHotEncoder</span>
+
+<span class="n">cat_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"region"</span><span class="p">]</span>
+<span class="n">num_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">panel</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_lag1"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_mom"</span><span class="p">)]</span>
+<span class="n">num_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">num_cols</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">panel</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>  <span class="c1"># safety check</span>
+
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="n">cat_cols</span> <span class="o">+</span> <span class="n">num_cols</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">X_valid</span> <span class="o">=</span> <span class="n">valid</span><span class="p">[</span><span class="n">cat_cols</span> <span class="o">+</span> <span class="n">num_cols</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="s2">"nights_spent"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">y_valid</span> <span class="o">=</span> <span class="n">valid</span><span class="p">[</span><span class="s2">"nights_spent"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># --- Preprocessor ---</span>
+<span class="n">pre</span> <span class="o">=</span> <span class="n">ColumnTransformer</span><span class="p">([</span>
+    <span class="p">(</span><span class="s2">"cat"</span><span class="p">,</span> <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">handle_unknown</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">),</span> <span class="n">cat_cols</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"num"</span><span class="p">,</span> <span class="s2">"passthrough"</span><span class="p">,</span> <span class="n">num_cols</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="c1"># --- Model ---</span>
+<span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBRegressor</span><span class="p">(</span>
+    <span class="n">n_estimators</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
+    <span class="n">max_depth</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">subsample</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+    <span class="n">colsample_bytree</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+    <span class="p">(</span><span class="s2">"pre"</span><span class="p">,</span> <span class="n">pre</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"model"</span><span class="p">,</span> <span class="n">xgb</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="n">pipe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># --- Validation Predictions ---</span>
+<span class="n">valid</span><span class="p">[</span><span class="s2">"yhat_xgb"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_valid</span><span class="p">)</span>
+
+<span class="c1"># ✅ Store XGB predictions back into panel for export</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">valid</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"yhat_xgb"</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid</span><span class="p">[</span><span class="s2">"yhat_xgb"</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[INFO] Stored XGBoost predictions in panel['yhat_xgb']: </span><span class="si">{</span><span class="n">panel</span><span class="p">[</span><span class="s1">'yhat_xgb'</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> non-missing rows"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[INFO] Stored XGBoost predictions in panel['yhat_xgb']: 312 non-missing rows
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a96e16f5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7692,7 +7780,7 @@ Build and compare advanced forecasting models (SARIMAX, XGBoost, LightGBM, LSTM)
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">preds_sarimax</span> <span class="o">=</span> <span class="p">[]</span>
@@ -7746,7 +7834,7 @@ Build and compare advanced forecasting models (SARIMAX, XGBoost, LightGBM, LSTM)
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>Fitting SARIMAX by country: 100%|██████████| 26/26 [01:23&lt;00:00,  3.22s/it]</pre>
+<pre>Fitting SARIMAX by country: 100%|██████████| 26/26 [01:22&lt;00:00,  3.17s/it]</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child">
@@ -7781,7 +7869,7 @@ Build and compare advanced forecasting models (SARIMAX, XGBoost, LightGBM, LSTM)
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">panel</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
@@ -7825,7 +7913,7 @@ Build and compare advanced forecasting models (SARIMAX, XGBoost, LightGBM, LSTM)
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>['region', 'month', 'year', 'nights_spent_x', 'gdp_lag1', 'gdp_lag2', 'gdp_lag3', 'unemployment_rate_lag1', 'unemployment_rate_lag2', 'unemployment_rate_lag3', 'turnover_index_lag1', 'turnover_index_lag2', 'turnover_index_lag3', 'hicp_index_lag1', 'hicp_index_lag2', 'hicp_index_lag3', 'covid_cases_lag1', 'covid_cases_lag2', 'covid_cases_lag3', 'policy_stringency_lag1', 'policy_stringency_lag2', 'policy_stringency_lag3', 'eurusd_lag1', 'eurusd_lag2', 'eurusd_lag3', 'eurgbp_lag1', 'eurgbp_lag2', 'eurgbp_lag3', 'gdp_mom', 'turnover_index_mom', 'hicp_index_mom', 'gdp', 'unemployment_rate', 'turnover_index', 'hicp_index', 'covid_cases', 'policy_stringency', 'eurusd', 'eurgbp', 'yhat_naive', 'nights_spent_y', 'yhat_sarimax']
+<pre>['region', 'month', 'year', 'nights_spent_x', 'gdp_lag1', 'gdp_lag2', 'gdp_lag3', 'unemployment_rate_lag1', 'unemployment_rate_lag2', 'unemployment_rate_lag3', 'turnover_index_lag1', 'turnover_index_lag2', 'turnover_index_lag3', 'hicp_index_lag1', 'hicp_index_lag2', 'hicp_index_lag3', 'covid_cases_lag1', 'covid_cases_lag2', 'covid_cases_lag3', 'policy_stringency_lag1', 'policy_stringency_lag2', 'policy_stringency_lag3', 'eurusd_lag1', 'eurusd_lag2', 'eurusd_lag3', 'eurgbp_lag1', 'eurgbp_lag2', 'eurgbp_lag3', 'gdp_mom', 'turnover_index_mom', 'hicp_index_mom', 'gdp', 'unemployment_rate', 'turnover_index', 'hicp_index', 'covid_cases', 'policy_stringency', 'eurusd', 'eurgbp', 'yhat_naive', 'yhat_xgb', 'nights_spent_y', 'yhat_sarimax']
 </pre>
 </div>
 </div>
@@ -7923,7 +8011,7 @@ dtype: float64
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># --- Save evaluation table to disk ---</span>
@@ -7968,7 +8056,7 @@ dtype: float64
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">representative</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"FR"</span><span class="p">,</span> <span class="s2">"DE"</span><span class="p">,</span> <span class="s2">"ES"</span><span class="p">,</span> <span class="s2">"IT"</span><span class="p">,</span> <span class="s2">"NL"</span><span class="p">,</span> <span class="s2">"PL"</span><span class="p">]</span>
@@ -8040,7 +8128,7 @@ dtype: float64
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">OUT_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../outputs/models"</span><span class="p">)</span>
@@ -8050,6 +8138,31 @@ dtype: float64
 <span class="n">panel</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT_DIR</span> <span class="o">/</span> <span class="s2">"forecast_predictions_full.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"💾 Saved results to </span><span class="si">{</span><span class="n">OUT_DIR</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 🧩 Export Compact Forecast Predictions for Notebook 5</span>
+<span class="c1"># ============================================================</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">export_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../data/processed/panel_with_predictions.csv"</span><span class="p">)</span>
+
+<span class="c1"># ✅ Keep only what Notebook 5 actually needs</span>
+<span class="n">cols_to_export</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"region"</span><span class="p">,</span> <span class="s2">"month"</span><span class="p">,</span> <span class="s2">"nights_spent"</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"yhat_naive"</span><span class="p">,</span> <span class="s2">"yhat_arimax"</span><span class="p">,</span> <span class="s2">"yhat_sarimax"</span><span class="p">,</span> <span class="s2">"yhat_xgb"</span><span class="p">,</span> <span class="s2">"yhat"</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">panel</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">new_col</span> <span class="o">=</span> <span class="s2">"yhat_xgb"</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"yhat"</span><span class="p">,</span> <span class="s2">"yhat_sarimax"</span><span class="p">]</span> <span class="k">else</span> <span class="n">col</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">new_col</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cols_to_export</span><span class="p">:</span>
+            <span class="n">cols_to_export</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_col</span><span class="p">)</span>
+
+<span class="n">panel_with_preds</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[</span><span class="n">cols_to_export</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">panel_with_preds</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Saved compact forecast file for Notebook 5: </span><span class="si">{</span><span class="n">export_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[INFO] Columns exported: </span><span class="si">{</span><span class="n">panel_with_preds</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[INFO] Non-missing counts:</span><span class="se">\n</span><span class="si">{</span><span class="n">panel_with_preds</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -8063,6 +8176,16 @@ dtype: float64
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>💾 Saved results to /Users/golibsanaev/Library/CloudStorage/Dropbox/GitHub_gsanaev/forecasting-explaining-hotel-demand-in-eu/outputs/models
+✅ Saved compact forecast file for Notebook 5: ../data/processed/panel_with_predictions.csv
+[INFO] Columns exported: ['region', 'month', 'nights_spent', 'yhat_naive', 'yhat_xgb', 'yhat_xgb']
+[INFO] Non-missing counts:
+region          3328
+month           3328
+nights_spent    3328
+yhat_naive      3302
+yhat_xgb         312
+yhat_xgb        3328
+dtype: int64
 </pre>
 </div>
 </div>
