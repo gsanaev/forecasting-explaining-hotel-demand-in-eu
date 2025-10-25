@@ -10,7 +10,7 @@ with OWID COVID, exchange rates, and policy stringency data.
 - No time-range truncation
 - Only merges and basic column alignment
 
-Output → data/processed/hotel_panel.csv
+Output → data/interim/hotel_panel.csv
 """
 
 import pandas as pd
@@ -21,7 +21,7 @@ import pycountry
 # CONFIGURATION
 # ---------------------------------------------------------------------
 RAW = Path("data/raw")
-OUT = Path("data/processed/hotel_panel.csv")
+OUT = Path("data/interim/hotel_panel.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------
