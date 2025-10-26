@@ -7517,7 +7517,15 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="%F0%9F%A7%AD-Notebook-1-%E2%80%94-Exploring-Demand-Recovery-in-Europe-After-COVID-19">🧭 <strong>Notebook 1 — Exploring Demand Recovery in Europe After COVID-19</strong><a class="anchor-link" href="#%F0%9F%A7%AD-Notebook-1-%E2%80%94-Exploring-Demand-Recovery-in-Europe-After-COVID-19">¶</a></h2>
+<h2 id="%F0%9F%A7%AD-Notebook-1-%E2%80%94-Data-Exploration-and-Preparation-of-European-Hotel-Demand-(2015%E2%80%932025)">🧭 Notebook 1 — Data Exploration and Preparation of European Hotel Demand (2015–2025)<a class="anchor-link" href="#%F0%9F%A7%AD-Notebook-1-%E2%80%94-Data-Exploration-and-Preparation-of-European-Hotel-Demand-(2015%E2%80%932025)">¶</a></h2><p>This notebook performs exploratory and preparatory analysis of the raw Eurostat and auxiliary datasets to build a harmonized panel for monthly <strong>hotel demand</strong> (<code>nights_spent</code>) across 26 EU countries.</p>
+<p><strong>Objectives:</strong></p>
+<ul>
+<li>Import and clean multiple country-level and macroeconomic datasets.</li>
+<li>Explore temporal patterns, data completeness, and outliers.</li>
+<li>Merge tourism, macroeconomic, and policy indicators into a unified panel.</li>
+<li>Export a clean, analysis-ready dataset (<code>hotel_panel_clean.csv</code>) for modeling in Notebook 2.</li>
+</ul>
+<hr/>
 </div>
 </div>
 </div>
@@ -7528,7 +7536,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Part-I.-Data-Preparation-and-Cleaning">Part I. Data Preparation and Cleaning<a class="anchor-link" href="#Part-I.-Data-Preparation-and-Cleaning">¶</a></h2>
+<h2 id="Part-1-%E2%80%94-Data-Preparation-and-Cleaning">Part 1 — Data Preparation and Cleaning<a class="anchor-link" href="#Part-1-%E2%80%94-Data-Preparation-and-Cleaning">¶</a></h2>
 </div>
 </div>
 </div>
@@ -8689,7 +8697,7 @@ dtype: float64
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Part-II.-Exploratory-Data-Analysis-and-Data-Refinement">Part II. Exploratory Data Analysis and Data Refinement<a class="anchor-link" href="#Part-II.-Exploratory-Data-Analysis-and-Data-Refinement">¶</a></h2>
+<h2 id="Part-2-%E2%80%94-Exploratory-Data-Analysis-and-Data-Refinement">Part 2 — Exploratory Data Analysis and Data Refinement<a class="anchor-link" href="#Part-2-%E2%80%94-Exploratory-Data-Analysis-and-Data-Refinement">¶</a></h2>
 </div>
 </div>
 </div>
@@ -9378,6 +9386,28 @@ Name: count, dtype: int64</pre>
 <pre>💾 Summary exported → ../data/processed/eda_summary.csv
 </pre>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=eb49c145">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<hr/>
+<h2 id="%F0%9F%A7%BE-Summary">🧾 Summary<a class="anchor-link" href="#%F0%9F%A7%BE-Summary">¶</a></h2><p>This notebook successfully:</p>
+<ol>
+<li>Consolidated monthly hotel nights and macroeconomic indicators for 26 EU countries (2015–2025).</li>
+<li>Conducted descriptive checks on missing values, temporal coverage, and summary statistics.</li>
+<li>Produced a harmonized and consistent dataset ready for modeling and feature engineering.</li>
+</ol>
+<p><strong>Output:</strong><br/>
+📁 <code>../data/processed/hotel_panel_clean.csv</code></p>
+<p><strong>Next Steps → Notebook 2:</strong><br/>
+Proceed to feature engineering and baseline forecasting to model and explain European hotel demand recovery dynamics.</p>
+<hr/>
 </div>
 </div>
 </div>
