@@ -1,12 +1,12 @@
 """
-covid_cases_download.py
+covid_download.py
 -----------------------
 Downloads global COVID-19 case data (Our World in Data),
 aggregates monthly totals per 100k population,
 and saves a raw country-month CSV (unaltered).
 
 Output:
-    data/raw/covid_cases.csv
+    data/raw/covid.csv
 """
 
 import pandas as pd
@@ -14,10 +14,10 @@ from pathlib import Path
 import requests
 from io import StringIO
 
-OUT = Path("data/raw/covid_cases.csv")
+OUT = Path("data/raw/covid.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
-def download_covid_cases():
+def download_covid():
     print("🦠 Downloading COVID-19 cases from Our World in Data...")
 
     url = "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv"
@@ -65,4 +65,4 @@ def download_covid_cases():
     print(covid_years.groupby("month")["cases_per_100k"].mean().head())
 
 if __name__ == "__main__":
-    download_covid_cases()
+    download_covid()

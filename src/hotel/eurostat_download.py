@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pandas")
 # ---------------------------------------------------------------------
 # CONFIGURATION
 # ---------------------------------------------------------------------
-OUT = Path("data/raw/eurostat_hotels.csv")
+OUT = Path("data/raw/eurostat.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 EU = set("AT BE BG CY CZ DE DK EE ES FI FR GR HR HU IE IT LT LU LV MT NL PL PT RO SE SI SK".split())

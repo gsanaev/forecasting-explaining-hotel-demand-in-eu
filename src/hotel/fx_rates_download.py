@@ -1,5 +1,5 @@
 """
-exchange_rates_download.py
+fx_rates_download.py
 --------------------------
 Downloads monthly EUR/USD and EUR/GBP exchange rates
 from Yahoo Finance (raw values, single header).
@@ -11,7 +11,7 @@ import yfinance as yf
 from pathlib import Path
 
 RAW = Path("data/raw")
-OUT = RAW / "exchange_rates.csv"
+OUT = RAW / "fx_rates.csv"
 RAW.mkdir(parents=True, exist_ok=True)
 
 

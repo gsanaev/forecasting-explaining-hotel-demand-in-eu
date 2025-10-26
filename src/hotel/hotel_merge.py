@@ -1,5 +1,5 @@
 """
-merge_datasets.py
+hotel_merge.py
 -----------------
 Merges Eurostat (hotel demand, GDP, unemployment, turnover, HICP)
 with OWID COVID, exchange rates, and policy stringency data.
@@ -10,7 +10,7 @@ with OWID COVID, exchange rates, and policy stringency data.
 - No time-range truncation
 - Only merges and basic column alignment
 
-Output → data/interim/hotel_panel.csv
+Output → data/interim/hotel.csv
 """
 
 import pandas as pd
@@ -21,7 +21,7 @@ import pycountry
 # CONFIGURATION
 # ---------------------------------------------------------------------
 RAW = Path("data/raw")
-OUT = Path("data/interim/hotel_panel.csv")
+OUT = Path("data/interim/hotel.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------
@@ -59,7 +59,7 @@ def merge_datasets():
     # -----------------------------------------------------------------
     # EUROSTAT CORE
     # -----------------------------------------------------------------
-    euro_path = RAW / "eurostat_hotels.csv"
+    euro_path = RAW / "eurostat.csv"
     if not euro_path.exists():
         raise FileNotFoundError(f"❌ Missing file: {euro_path}")
     euro = load_csv(euro_path)
@@ -69,7 +69,7 @@ def merge_datasets():
     # -----------------------------------------------------------------
     # COVID CASES (OWID)
     # -----------------------------------------------------------------
-    covid_path = RAW / "covid_cases.csv"
+    covid_path = RAW / "covid.csv"
     if not covid_path.exists():
         print("⚠️ COVID dataset not found — proceeding without it.")
         covid = pd.DataFrame(columns=["region", "month", "covid_cases"])
@@ -95,7 +95,7 @@ def merge_datasets():
     # -----------------------------------------------------------------
     # EXCHANGE RATES (Yahoo Finance)
     # -----------------------------------------------------------------
-    exr_path = RAW / "exchange_rates.csv"
+    exr_path = RAW / "fx_rates.csv"
     if exr_path.exists():
         exr = pd.read_csv(exr_path)
         # Handle flexible date column name

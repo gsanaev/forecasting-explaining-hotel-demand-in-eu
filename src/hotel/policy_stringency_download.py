@@ -1,3 +1,17 @@
+# Safe SSL context setup (prevents CERTIFICATE_VERIFY_FAILED on some systems)
+import ssl
+import certifi
+
+try:
+    ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+except Exception:
+    # As a fallback, disable SSL verification (not ideal, but better than crashing)
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+
+from pathlib import Path
+import pandas as pd
+
 """
 policy_stringency_download.py
 -----------------------------
@@ -6,9 +20,6 @@ policy stringency index (0–100) and aggregates it to monthly MEAN values per c
 
 Outputs: data/raw/policy_stringency.csv
 """
-
-from pathlib import Path
-import pandas as pd
 
 OUT = Path("data/raw/policy_stringency.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
