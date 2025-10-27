@@ -30,3 +30,4 @@ figures/
 *.tmp
 *.bak
 uv.lock
+data/
