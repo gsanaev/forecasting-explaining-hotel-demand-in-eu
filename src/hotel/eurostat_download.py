@@ -1,162 +1,143 @@
 """
-eurostat_download.py
---------------------
-Downloads long-term Eurostat datasets for the European hotel industry (raw 2015–2025+ data, unaltered).
+hotel_merge.py
+-----------------
+Merges Eurostat (hotel demand, GDP, unemployment, turnover, HICP)
+with OWID COVID, exchange rates, and policy stringency data.
 
-Includes:
-  - nights spent (tour_occ_nim)
-  - GDP (namq_10_gdp quarterly, nama_10_gdp annual)
-  - unemployment rate (une_rt_m)
-  - turnover index (sts_setu_m)
-  - HICP (prc_hicp_midx)
+✅ Clean 2025 version:
+- All datasets aligned on region (ISO2) and month (YYYY-MM-DD)
+- Robust to missing 'region' columns (e.g., FX rates)
+- Sorted, validated, and ready for modeling
+
+Output → data/interim/hotel.csv
 """
 
-from pathlib import Path
 import pandas as pd
-from eurostat import get_data_df
-from datetime import datetime
-
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="pandas")
+from pathlib import Path
 
 # ---------------------------------------------------------------------
 # CONFIGURATION
 # ---------------------------------------------------------------------
-OUT = Path("data/raw/eurostat.csv")
+RAW = Path("data/raw")
+OUT = Path("data/interim/hotel.csv")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
-EU = set("AT BE BG CY CZ DE DK EE ES FI FR GR HR HU IE IT LT LU LV MT NL PL PT RO SE SI SK".split())
-
-UNEMP_F = {"unit": ["PC_ACT"], "s_adj": ["NSA"]}
 
 # ---------------------------------------------------------------------
 # HELPERS
 # ---------------------------------------------------------------------
-def normalize_df(df):
-    """Flatten MultiIndex and rename 'geo' column to 'region'."""
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = ["_".join(c for c in col if c) for col in df.columns]
-    df = df.reset_index(drop=False)
-    geo_col = next((c for c in df.columns if "geo" in c.lower()), None)
-    if not geo_col:
-        return pd.DataFrame(columns=["region"])
-    return df.rename(columns={geo_col: "region"})
+def load_dataset(name: str) -> pd.DataFrame:
+    """Load dataset safely from /data/raw/ and check expected columns."""
+    path = RAW / f"{name}.csv"
+    if not path.exists():
+        print(f"⚠️ {name} not found → skipping merge.")
+        return pd.DataFrame()
 
+    df = pd.read_csv(path)
 
-def tidy(df, value_col):
-    """Convert Eurostat wide format to tidy long format."""
-    time_cols = [c for c in df.columns if any(x.isdigit() for x in str(c))]
-    df = df.melt(id_vars=["region"], value_vars=time_cols, var_name="time", value_name=value_col)
-    df["time"] = pd.to_datetime(df["time"], errors="coerce")
-    df[value_col] = pd.to_numeric(df[value_col], errors="coerce")
-    return df.dropna(subset=["time"])
+    # Check for 'month' column
+    if "month" not in df.columns:
+        raise KeyError(f"❌ {name} missing 'month' column")
 
+    # Normalize month format
+    df["month"] = pd.to_datetime(df["month"], errors="coerce").dt.strftime("%Y-%m-%d")
 
-def fetch_dataset(code, value_col, filters):
-    """Generic Eurostat fetch and tidy"""
-    try:
-        raw = get_data_df(code, flags=False)
-    except Exception as e:
-        print(f"❌ Failed {code}: {e}")
-        return pd.DataFrame(columns=["region", "time", value_col])
-    df = normalize_df(raw)
-    if df.empty:
-        return df
-    for k, v in filters.items():
-        if k in df.columns:
-            df = df[df[k].isin(v)]
-    df = df[df["region"].str[:2].isin(EU)]
-    return tidy(df, value_col)
+    # Normalize region codes if available
+    if "region" in df.columns:
+        df["region"] = df["region"].astype(str).str.upper().str.strip()
+        region_info = f"{df['region'].nunique()} countries"
+    else:
+        region_info = "no region column"
+
+    print(f"✅ Loaded {name:<18} → {len(df):>7,} rows | {region_info}")
+    return df
+
 
 # ---------------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------------
-def main():
-    print("📥 Downloading Eurostat datasets...")
+def merge_datasets():
+    print("📥 Merging Eurostat, COVID, FX rates, and Policy Stringency datasets...")
 
-    # --- Nights spent ---
-    hotels = fetch_dataset("tour_occ_nim", "nights_spent", {})
-    print(f"✅ Hotels: {len(hotels):,}")
+    # --- Load datasets ---
+    euro = load_dataset("eurostat")
+    covid = load_dataset("covid")
+    fx = load_dataset("fx_rates")
+    policy = load_dataset("policy_stringency")
 
-    # --- GDP: quarterly + fallback annual ---
-    print("📊 Fetching GDP (quarterly + annual fallback)...")
+    if euro.empty:
+        raise FileNotFoundError("Eurostat data is required as the base dataset.")
 
-    q_filters = {
-        "na_item": ["B1G", "B1GQ"],
-        "unit": ["CP_MEUR", "CLV05_MEUR", "CLV10_MEUR"],
-        "s_adj": ["NSA", "CA"],
-    }
-    gdp_q = fetch_dataset("namq_10_gdp", "gdp", q_filters)
+    # --- Harmonize COVID column naming ---
+    if not covid.empty and "cases_per_100k" in covid.columns:
+        covid = covid.rename(columns={"cases_per_100k": "covid_cases"})
 
-    # ❌ Removed: interpolation to monthly to preserve raw data
-    if not gdp_q.empty:
-        gdp_q = gdp_q.drop_duplicates(subset=["region", "time"])
-        print(f"✅ Quarterly GDP: {len(gdp_q):,} rows")
-    else:
-        print("⚠️ Quarterly GDP missing, attempting annual fallback...")
+    # --- Merge step-by-step ---
+    merged = euro.copy()
 
-    a_filters = {"na_item": ["B1G"], "unit": ["CLV10_MEUR"], "s_adj": ["NSA"]}
-    gdp_a = fetch_dataset("nama_10_gdp", "gdp", a_filters)
-    gdp = (
-        pd.concat([gdp_q, gdp_a], ignore_index=True)
-        .drop_duplicates(subset=["region", "time"], keep="first")
-    )
+    # COVID
+    if not covid.empty:
+        merged = merged.merge(
+            covid[["region", "month", "covid_cases"]],
+            on=["region", "month"],
+            how="left",
+        )
 
-    gdp["region"] = gdp["region"].str.upper().str.strip()
-    gdp["time"] = gdp["time"].dt.to_period("M").dt.to_timestamp("M", "start")
+    # FX rates (no region)
+    if not fx.empty:
+        fx = fx.rename(columns={"time": "month"}) if "time" in fx.columns else fx
+        merged = merged.merge(fx[["month", "eurusd", "eurgbp"]], on="month", how="left")
 
-    # --- Unemployment ---
-    unemp = fetch_dataset("une_rt_m", "unemployment_rate", UNEMP_F)
-    print(f"✅ Unemployment: {len(unemp):,}")
+    # Policy Stringency
+    if not policy.empty:
+        merged = merged.merge(
+            policy[["region", "month", "policy_stringency"]],
+            on=["region", "month"],
+            how="left",
+        )
 
-    # --- Turnover ---
-    print("🏨 Fetching hospitality turnover index...")
-    TURNOVER_F = {
-        "indic_bt": ["NETTUR"],
-        "nace_r2": ["I", "I55", "I56"],
-        "s_adj": ["CA"],
-        "unit": ["I21"],
-    }
-    turnover = fetch_dataset("sts_setu_m", "turnover_index", TURNOVER_F)
-    print(f"✅ Turnover: {len(turnover):,}")
+    # --- Sort and clean ---
+    merged = merged.drop_duplicates(["region", "month"]).sort_values(["region", "month"])
+    merged.reset_index(drop=True, inplace=True)
 
-    # --- HICP ---
-    print("💶 Fetching HICP (Harmonised Index of Consumer Prices)...")
-    HICP_F = {
-        "coicop": ["CP00"],
-        "unit": ["I15", "I21"],
-        "geo": list(EU),
-    }
-    hicp = fetch_dataset("prc_hicp_midx", "hicp_index", HICP_F)
-    print(f"✅ HICP: {len(hicp):,}")
-
-    # --- Align all to month start ---
-    for df_ in [hotels, gdp, unemp, turnover, hicp]:
-        if not df_.empty:
-            df_["time"] = df_["time"].dt.to_period("M").dt.to_timestamp("M", "start")
-
-    # --- Merge all ---
-    merged = (
-        hotels.merge(gdp, on=["region", "time"], how="left")
-        .merge(unemp, on=["region", "time"], how="left")
-        .merge(turnover, on=["region", "time"], how="left")
-        .merge(hicp, on=["region", "time"], how="left")
-        .drop_duplicates(["region", "time"])
-    )
-
-    # ✅ Keep only data from 2015-01-01 until today
-    today = datetime.now().strftime("%Y-%m-%d")
-    merged = merged[merged["time"].between("2015-01-01", today)]
-
+    # --- Save ---
     merged.to_csv(OUT, index=False)
-    print(f"💾 Saved → {OUT.resolve()} ({len(merged):,} rows)")
+    print(f"💾 Saved merged dataset → {OUT.resolve()} ({len(merged):,} rows)")
 
-    merged["year"] = merged["time"].dt.year
-    cols = ["nights_spent", "gdp", "unemployment_rate", "turnover_index"]
-    summary = merged.groupby("year")[cols].apply(lambda x: x.notna().mean().round(2))
-    print("\n📊 Data completeness (share of non-null values):")
-    print(summary.tail(10))
+    # --- Validation checks ---
+    print("\n🔍 Validating dataset consistency...")
+
+    # 1️⃣ Monotonic month order per country
+    try:
+        grouped = merged.groupby("region")["month"].apply(lambda x: x.is_monotonic_increasing)
+        if not grouped.all():
+            bad = grouped[~grouped].index.tolist()
+            print(f"⚠️ Non-monotonic month order detected for: {bad}")
+        else:
+            print("✅ All countries have monotonic month sequence.")
+    except Exception as e:
+        print(f"⚠️ Could not validate month order: {e}")
+
+    # 2️⃣ Completeness summary
+    merged["year"] = pd.to_datetime(merged["month"]).dt.year
+    cols = [
+        "nights_spent",
+        "gdp",
+        "unemployment_rate",
+        "turnover_index",
+        "hicp_index",
+        "covid_cases",
+        "eurusd",
+        "eurgbp",
+        "policy_stringency",
+    ]
+    available = [c for c in cols if c in merged.columns]
+    completeness = merged.groupby("year")[available].apply(lambda x: x.notna().mean().round(2))
+
+    print("\n📊 Non-null share by year:")
+    print(completeness.tail(10))
 
 
+# ---------------------------------------------------------------------
 if __name__ == "__main__":
-    main()
+    merge_datasets()
