@@ -23,7 +23,7 @@ env/
 data/raw/
 data/processed/
 !data/**/.gitkeep
-!data/interim/
+data/interim/
 !data/data_reserve/
 
 # Outputs (ignore large results but keep structure)
