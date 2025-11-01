@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forecasting & Explaining Hotel Demand in the EU (2015–2025)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            max-width: 950px;
+            margin: 2rem auto;
+            padding: 1rem 1.5rem;
+            line-height: 1.6;
+            background-color: #f9fafc;
+            color: #2c3e50;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f2d3d;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #5a6b7a;
+            margin-top: 0;
+            margin-bottom: 2rem;
+        }
+
+        p {
+            font-size: 1.05rem;
+            text-align: justify;
+            margin-bottom: 1.8rem;
+        }
+
+        .figure-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .figure-row img {
+            width: 100%;
+            max-width: 440px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        li {
+            margin: 0.6rem 0;
+            font-size: 1.05rem;
+        }
+
+        a {
+            text-decoration: none;
+            color: #0078D4;
+            font-weight: 600;
+        }
+
+        a:hover {
+            color: #005A9E;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 2.5rem;
+            color: #555;
+        }
+
+        footer a {
+            color: #0078D4;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .acknowledgements {
+            margin-top: 3rem;
+            background: #eef4fb;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .acknowledgements h3 {
+            text-align: center;
+            color: #0078D4;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .acknowledgements ul {
+            text-align: left;
+            margin: 0;
+            padding-left: 1rem;
+        }
+
+        .acknowledgements li {
+            margin: 0.4rem 0;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🏨 Forecasting and Explaining Hotel Demand in the EU (2015–2025)</h1>
+    <h2>Hybrid Econometric & Machine Learning Modeling with SHAP Explainability</h2>
+
+    <p>
+        This project develops a transparent and reproducible pipeline to forecast and interpret
+        <strong>hotel demand across 26 European Union countries (2015–2025)</strong>.
+        It integrates <strong>macroeconomic</strong> and <strong>policy indicators</strong> using
+        <em>ARIMAX / SARIMAX</em> and <em>XGBoost / LightGBM</em> models with
+        <strong>SHAP explainability</strong> and <strong>scenario forecasting</strong>
+        for 2025.
+        <br><br>
+        The workflow quantifies how GDP growth, policy stringency, and turnover dynamics shape post-pandemic
+        tourism recovery across Europe.
+    </p>
+
+    <div class="figure-row">
+        <img src="../outputs/figures/gdp_elasticity_by_country.png" alt="GDP Elasticity of Hotel Demand" />
+        <img src="../outputs/figures/shap_summary_xgb.png" alt="SHAP Summary Plot (XGBoost)" />
+    </div>
+
+    <h2>📘 Explore the Analytical Workflow</h2>
+    <ul>
+        <li>🧹 <a href="01_data_exploration_preparation.html">Data Integration & Cleaning</a></li>
+        <li>🔍 <a href="02_feature_engineering.html">Feature Engineering</a></li>
+        <li>⚙️ <a href="03_model_estimation_comparison.html">Model Estimation & Forecasting</a></li>
+        <li>📊 <a href="04_model_interpretability_economic_drivers.html">Model Interpretability & Economic Drivers</a>
+        </li>
+        <li>🌍 <a href="05_scenario_forecasting_policy_simulations.html">Scenario Forecasting & GDP Elasticities</a>
+        </li>
+    </ul>
+
+    <div class="acknowledgements">
+        <h3>🙏 Acknowledgements</h3>
+        <ul>
+            <li><a href="https://stackfuel.com/" target="_blank">StackFuel</a> — for supporting applied machine learning
+                research</li>
+            <li><a href="https://anorhotels.de/" target="_blank">Elite Hospitality GmbH</a> — for industry collaboration
+                and applied insights</li>
+            <li><a href="https://ec.europa.eu/eurostat" target="_blank">Eurostat</a> — for open tourism and
+                macroeconomic indicators</li>
+            <li><a href="https://ourworldindata.org/coronavirus" target="_blank">Our World in Data (OWID)</a> — for
+                COVID-19 data</li>
+            <li><a href="https://www.bsg.ox.ac.uk/research/research-projects/covid-19-government-response-tracker"
+                    target="_blank">Oxford COVID-19 Government Response Tracker (OxCGRT)</a> — for policy stringency
+                data</li>
+            <li><a href="https://finance.yahoo.com/" target="_blank">Yahoo Finance</a> — for exchange rate data</li>
+            <li><code>scikit-learn</code>, <code>SHAP</code>, and <code>pandas</code> communities — for open,
+                transparent ML tools</li>
+            <li><strong>OpenAI Assistant (GPT-5)</strong> — for research collaboration, technical writing, and workflow
+                automation</li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>
+            <em>Created by Golib Sanaev, 2025 — MIT License</em><br>
+            <a href="https://github.com/gsanaev/forecasting-explaining-hotel-demand-in-eu" target="_blank">View on
+                GitHub</a>
+        </p>
+    </footer>
+
+</body>
+
+</html>

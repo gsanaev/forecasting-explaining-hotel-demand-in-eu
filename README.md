@@ -198,6 +198,7 @@ Finally, execute notebooks in sequence:
 
 ## 🙏 Acknowledgements
 - [StackFuel](https://stackfuel.com/) — for supporting applied machine learning research  
+- [Elite Hospitality GmbH](https://anorhotels.de/) - for industry collaboration and applied insights
 - [Eurostat](https://ec.europa.eu/eurostat) — for open tourism and macroeconomic indicators  
 - [Our World in Data (OWID)](https://ourworldindata.org/coronavirus) — for COVID-19 data  
 - [Oxford COVID-19 Government Response Tracker (OxCGRT)](https://www.bsg.ox.ac.uk/research/research-projects/covid-19-government-response-tracker) — for policy stringency data  
