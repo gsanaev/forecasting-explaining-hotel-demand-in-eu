@@ -1,163 +1,209 @@
-# 🏨 Machine Learning and Econometric Analysis of Hotel Demand Recovery in Europe (2015–2026)
+# 🏨 Forecasting and Explaining Hotel Demand in the European Union (2015–2025) 🌍
 
-### 📘 Overview
-This project analyzes how the **European hotel industry** has recovered following the COVID-19 pandemic using **econometric** and **machine-learning** methods.  
-It constructs a harmonized **monthly panel (2015–2026)** for 26 EU countries using data from Eurostat, Our World in Data, Oxford COVID-19 Tracker, and Yahoo Finance to forecast and explain hotel demand dynamics.
+> A reproducible **econometric and machine-learning pipeline** for forecasting and interpreting **hotel demand across 26 EU countries (2015–2025)** using macroeconomic and policy indicators.  
+> Combines **ARIMAX / SARIMAX** with **XGBoost / LightGBM**, integrating **SHAP explainability**, **panel regression**, and **macroeconomic scenario simulations**.
 
-**Core research question:**  
-> Has the European hotel sector returned to its pre-pandemic equilibrium, and which macroeconomic and health factors drive differences in recovery across countries?
-
----
-
-## 🧾 Data Sources
-
-| Source | Variables | Coverage | Notes |
-|-------|-----------|----------|------|
-| **Eurostat** | Hotel nights, GDP (monthlyized), Unemployment, Turnover index, HICP | 2015–2025 | Core dataset |
-| **Our World in Data (OWID)** | COVID-19 new cases per 100k | 2020–2025 | Aggregated to monthly sums |
-| **Oxford COVID-19 Tracker (OxCGRT)** | Government **Stringency Index** | 2020–2023 | Monthly mean per country |
-| **Yahoo Finance** | EUR/USD, EUR/GBP exchange rates | 2015–2025 | Monthly close prices |
-
-**Main processed datasets**
-- `hotel_panel_clean.csv` — cleaned harmonized monthly panel  
-- `hotel_panel_features.csv` — feature-engineered dataset (lags, MoM, time vars)  
-- `model_predictions.csv` — model outputs and forecasts  
+![Python Version](https://img.shields.io/badge/python-3.11-blue)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Status](https://img.shields.io/badge/status-completed-success)
 
 ---
 
-## 🧱 Repository Structure
+## 📘 View Results Online
 
+Explore the full analytical workflow:
+
+- <a href="https://gsanaev.github.io/forecasting-eu-hotel-demand/01-data-integration-cleaning.html" target="_blank">🧹 Data Integration & Cleaning</a>  
+- <a href="https://gsanaev.github.io/forecasting-eu-hotel-demand/02-feature-engineering-exploration.html" target="_blank">🔍 Feature Engineering & Exploration</a>  
+- <a href="https://gsanaev.github.io/forecasting-eu-hotel-demand/03-model-training-forecasting.html" target="_blank">⚙️ Model Training & Forecasting</a>  
+- <a href="https://gsanaev.github.io/forecasting-eu-hotel-demand/04-model-interpretability.html" target="_blank">📊 Model Interpretability & Economic Drivers</a>  
+- <a href="https://gsanaev.github.io/forecasting-eu-hotel-demand/05-scenario-forecasting.html" target="_blank">🌍 Scenario Forecasting & GDP Elasticities</a>  
+
+---
+
+## 📊 Project Overview
+
+**Problem Statement:**  
+Tourism demand forecasting is essential for **economic planning, sustainability, and resilience** in Europe.  
+While traditional time-series models capture temporal patterns, they often miss **macroeconomic and policy contexts** that drive structural changes.
+
+**Goal:**  
+To build a transparent, **hybrid econometric–machine-learning pipeline** that forecasts **monthly hotel nights** across EU countries, identifies their **economic drivers**, and tests **macroeconomic scenarios** for 2025.
+
+**Approach:**  
+The workflow integrates:  
+- 🧮 **Econometric models:** ARIMAX, SARIMAX  
+- 🤖 **Machine learning:** XGBoost, LightGBM  
+- 💡 **Explainability:** SHAP values + panel regressions  
+- 📈 **Scenario simulations:** GDP, turnover, and policy shocks  
+
+---
+
+## 🎯 Key Insights
+
+- **GDP growth** (current and lagged) remains the **strongest positive determinant** of hotel demand.  
+- **Tourism turnover** captures short-run cyclical fluctuations.  
+- **Policy stringency** (COVID restrictions) still shows a **negative but declining** effect post-2022.  
+- **Unemployment** plays a limited role once GDP and turnover are controlled for.  
+- **Scenario simulations (2025)** indicate that small, tourism-intensive economies are **highly elastic**, while large diversified ones are **structurally resilient**.
+
+| Group | Countries | GDP Elasticity | Interpretation |
+|--------|------------|----------------|----------------|
+| **Highly elastic** | LU, LV, ES, NL | > 1.0 | Tourism activity amplifies macro cycles |
+| **Moderately elastic** | SI, CY, HR | 0.5–1.0 | Balanced cyclical response |
+| **Stable markets** | DE, FR, BE | < 0.3 | Business travel dominates; less cyclical |
+
+---
+
+## 📁 Repository Structure
 
 ```
-project_root/
+├── data/                              # All input and processed data
+│ ├── raw/                             # 📂 Original data sources
+│ │ ├── covid.csv                      # Our World in Data (OWID)
+│ │ ├── eurostat.csv                   # Eurostat tourism & macro indicators
+│ │ ├── fx_rates.csv                   # Yahoo Finance — exchange rates
+│ │ ├── policy_stringency.csv          # Oxford COVID-19 Tracker (OxCGRT)
+│ │ └── .gitkeep
+│ │
+│ ├── interim/                         # 📂 Intermediate cleaned data
+│ │ ├── hotel.csv                      # Transitional dataset before modeling
+│ │ └── .DS_Store
+│ │
+│ ├── processed/                       # 📂 Final modeling and forecast datasets
+│ │ ├── hotel_clean.csv                # After cleaning and harmonization
+│ │ ├── hotel_features.csv             # Feature-engineered dataset
+│ │ ├── hotel_predictions.csv          # Combined model forecasts
+│ │ ├── hotel_scenario_results.csv     # Scenario simulations (GDP, turnover, policy)
+│ │ ├── hotel_scenario_gdp_merged.csv  # Merged baseline + scenario forecasts
+│ │ ├── .gitkeep
+│ │ └── .DS_Store
+│ │
+│ └── data_reserve/                    # 📂 Backup snapshots for reproducibility
+│ └── hotel_2025-11-01.csv
 │
-├── data/
-│ ├── raw/ # Original Eurostat, OWID, OxCGRT, FX data
-│ └── processed/
-│ ├── hotel_panel.csv
-│ ├── hotel_panel_clean.csv
-│ ├── hotel_panel_features.csv
-│ └── model_predictions.csv
+├── src/                               # 📂 Automated data acquisition scripts
+│ └── hotel/
+│ ├── eurostat_download.py             # Downloads Eurostat data
+│ ├── covid_download.py                # Imports OWID COVID data
+│ ├── fx_rates_download.py             # Retrieves FX rate data
+│ ├── policy_stringency_download.py    # Loads OxCGRT policy data
+│ └── hotel_merge.py                   # Merges all raw datasets
 │
-├── src/hotel/ # Python scripts for data acquisition and merging
+├── notebooks/                                           # 📓 Analytical notebooks (core workflow)
+│ ├── 01_data_exploration_preparation.ipynb              # Data cleaning & integration
+│ ├── 02_feature_engineering_forecasting.ipynb           # Feature creation & transformation
+│ ├── 03_model_estimation_comparison.ipynb               # ARIMAX, SARIMAX, XGB, LGBM training
+│ ├── 04_model_interpretability_economic_drivers.ipynb   # SHAP + panel regressions
+│ └── 05_scenario_forecasting_policy_simulations.ipynb   # Scenario forecasting (GDP shocks)
 │
-├── notebooks/
-│ ├── 01-data-exploration.ipynb
-│ ├── 02-feature-engineering-and-forecasting.ipynb
-│ ├── 03-advanced-forecasting.ipynb
-│ ├── 04-econometric-and-interpretability.ipynb
-│ └── 05-results-visualization.ipynb
+├── utils/                             # ⚙️ Custom utility modules
+│ ├── metrics.py                       # Evaluation metrics (RMSE, MAE, etc.)
+│ ├── modeling.py                      # Preprocessing and ML pipelines
+│ ├── plots.py                         # Visualization helpers
+│ ├── explainability.py                # SHAP & econometric interpretation
+│ └── scenarios.py                     # Scenario simulation and elasticity
 │
-├── outputs/
-│ ├── figures/ # Plots, dashboards, recovery maps
-│ ├── models/ # Trained models or serialized results
-│ └── tables/ # Evaluation and regression summaries
+├── outputs/                           # 📊 Model outputs, reports, visualizations
+│ ├── models/                          # Trained models and feature sets
+│ │ ├── pipe_xgb.pkl
+│ │ ├── pipe_lgbm.pkl
+│ │ ├── arimax/                        # Regional ARIMAX models
+│ │ ├── sarimax/                       # Regional SARIMAX models
+│ │ ├── X_train_shap.parquet
+│ │ └── X_train_columns.json
+│ │
+│ ├── figures/                                  # Visualization outputs (plots & comparisons)
+│ │ ├── EU_vs_Top5_Hotel_Nights_COVID.png       # Baseline tourism trend comparison
+│ │ ├── correlation_within_vs_raw.png           # Correlation analysis before/after demeaning
+│ │ ├── shap_summary_xgb.png                    # SHAP beeswarm summary — XGBoost
+│ │ ├── shap_summary_lgbm.png                   # SHAP beeswarm summary — LightGBM
+│ │ ├── shap_dependence_xgb_log_gdp_lag1.png    # Feature dependence (GDP lag) — XGB
+│ │ ├── gdp_elasticity_by_country.png           # Country-level GDP elasticity
+│ │ └── scenario_forecast_comparison_DE.png     # Example scenario forecast — Germany
+│ │
+│ ├── reports/                         # Tabular outputs and summaries
+│ │ └── driver_regression_summary.csv
+│ │ └── gdp_elasticity_summary.csv
+│ └── .gitkeep
 │
-├── docs/ # Exported visualizations / reports
+├── docs/                              # 🌐 Rendered HTML notebooks for GitHub Pages
+│ ├── 01_data_exploration_preparation.html
+│ ├── 02_feature_engineering.html
+│ ├── 03_model_estimation_comparison.html
+│ ├── 04_model_interpretability_economic_drivers.html
+│ └── 05_scenario_forecasting_policy_simulations.html
 │
-├── pyproject.toml / requirements.txt
-├── environment.yml
-└── README.md
+├── README.md        # 📄 Main project documentation
+└── pyproject.toml   # ⚙️ Environment configuration
 ```
 
 ---
 
+## 🚀 Reproducibility
 
----
+### Setup
+```bash
+# Clone the repository
+git clone https://github.com/gsanaev/forecasting-explaining-hotel-demand-in-eu.git
+cd forecasting-explaining-hotel-demand-in-eu
 
-## 🧭 Notebook Overview
+# Sync environment (installs Python and dependencies)
+uv sync
+```
 
-| # | Notebook | Title | Purpose |
-|---|-----------|--------|----------|
-| **01** | `01-data-exploration.ipynb` | **Data Exploration and Cleaning** | Merge raw Eurostat, OWID, OxCGRT, FX data; interpolate missing values; produce `hotel_panel_clean.csv`. |
-| **02** | `02-feature-engineering-and-forecasting.ipynb` | **Feature Engineering & Baseline Forecasting** | Create lagged/MoM/time features; train Naïve, ARIMAX, XGBoost baselines; export `hotel_panel_features.csv`. |
-| **03** | `03-advanced-forecasting.ipynb` | **Advanced Forecasting Models** | Extend forecasting with SARIMAX, XGBoost, LightGBM, and LSTM; compare RMSE/MAE across EU markets. |
-| **04** | `04-econometric-and-interpretability.ipynb` | **Econometric & Interpretability Analysis** | Estimate fixed-effects and DiD regressions; apply SHAP analysis to explain ML model behavior. |
-| **05** | `05-results-visualization.ipynb` | **Results Visualization & Policy Insights** | Create comparative plots, recovery dashboards, and summarize main findings. |
+### Execution
+Ensure raw data is available in `data/raw/`, then run:
 
----
+```bash
+# 1. Retrieve Eurostata data
+uv run python -m src.hotel.eurostat_download
 
-### 🔄 Project Workflow Summary
+# 2. Retrieve Our World in Data (OWID) data
+uv run python -m src.hotel.covid_download
 
-1. **Data Collection & Cleaning (Notebook 1):**  
-   Raw hotel, macroeconomic, and policy data merged and harmonized into a monthly EU panel.  
-2. **Feature Engineering & Baseline Forecasting (Notebook 2):**  
-   Create lag/MoM/time features and build baseline Naïve, ARIMAX, XGBoost forecasts.  
-3. **Advanced Forecasting (Notebook 3):**  
-   Develop and compare SARIMAX, XGBoost, LightGBM, and LSTM models for 2025–2026.  
-4. **Econometric & Interpretability Analysis (Notebook 4):**  
-   Quantify macroeconomic and policy impacts using fixed-effects regressions and SHAP.  
-5. **Visualization & Policy Insights (Notebook 5):**  
-   Aggregate results and visualize recovery patterns across EU countries.
+# 3. Retrieve Oxford COVID-19 Tracker (OxCGRT) data
+uv run python -m src.hotel.policy_stringency_download
 
----
+# 4. Retrieve Yahoo Finance data
+uv run python -m src.hotel.fx_rates_download
 
-### 🗺️ Data Flow Overview
+# 5. Merge Downloaded data
+uv run python -m src.hotel.hotel_merge
+```
+Finally, execute notebooks in sequence:
 
-RAW DATA SOURCES
-↓
-01-data-exploration.ipynb
-→ hotel_panel_clean.csv
-↓
-02-feature-engineering-and-forecasting.ipynb
-→ hotel_panel_features.csv
-↓
-03-advanced-forecasting.ipynb
-→ model_predictions.csv
-↓
-04-econometric-and-interpretability.ipynb
-→ econometric_results.csv / SHAP tables
-↓
-05-results-visualization.ipynb
-→ dashboards / policy charts
-
-
-> This modular design ensures full reproducibility — from raw data ingestion to interpretable forecasting and policy-level insights.
-
----
-
-## ⚙️ Methods & Tools
-
-| Category | Libraries / Techniques |
-|-----------|------------------------|
-| **Core** | pandas, numpy, requests |
-| **Econometrics** | statsmodels, linearmodels |
-| **Forecasting** | pmdarima, SARIMAX, XGBoost, LightGBM, TensorFlow/Keras (LSTM) |
-| **Interpretability** | SHAP, feature importance |
-| **Visualization** | matplotlib, seaborn, plotly |
-| **Geo (optional)** | geopandas, folium |
-| **Development** | jupyterlab, black, isort |
-
----
-
-## 📈 Key Insights (preliminary)
-
-- Sharp demand collapse in 2020 followed by gradual, heterogeneous recovery (2022–2025).  
-- GDP and turnover show strong positive correlations with hotel nights, while COVID cases and policy stringency exert negative effects.  
-- **XGBoost and LightGBM** outperform linear baselines on multi-feature forecasts.  
-- **Econometric results** confirm significant macroelasticities and cross-country heterogeneity in recovery speed.
-
----
-
-## 🧩 Contributions
-- Reproducible EU hotel demand panel (2015–2026) enriched with macroeconomic and COVID variables  
-- Transparent pipeline: from data acquisition to model comparison  
-- Integrated econometric + ML framework for forecasting and interpretation  
-- Open datasets and code for academic and policy research
-
+```bash
+# 1. notebooks/01-data-integration-cleaning.ipynb
+# 2. notebooks/02-feature-engineering.ipynb
+# 3. notebooks/03-model-training-forecasting.ipynb
+# 4. notebooks/04-model-interpretability.ipynb
+# 5. notebooks/05-scenario-forecasting.ipynb
+```
 ---
 
 ## 📚 Citation
-> Sanaev, G. (2025). *Machine Learning and Econometric Analysis of Hotel Demand Recovery in Europe.*  
-> GitHub Repository: [github.com/gsanaev/hotel-demand-recovery](https://github.com/gsanaev/hotel-demand-recovery)
+> Sanaev, G. (2025). *Forecasting and Explaining Hotel Demand in the European Union (2015–2025).*  
+> GitHub Repository: [github.com/gsanaev/forecasting-explaining-hotel-demand-in-eu](https://github.com/gsanaev/forecasting-explaining-hotel-demand-in-eu)
 
 ---
 
 ## 📞 Contact
+
 **GitHub:** [@gsanaev](https://github.com/gsanaev)  
 **Email:** gsanaev@gmail.com  
-**LinkedIn:** [Golib Sanaev](https://linkedin.com/in/golib-sanaev)
+**LinkedIn:** [golib-sanaev](https://linkedin.com/in/golib-sanaev)
 
 ---
+
+## 🙏 Acknowledgements
+- [StackFuel](https://stackfuel.com/) — for supporting applied machine learning research  
+- [Eurostat](https://ec.europa.eu/eurostat) — for open tourism and macroeconomic indicators  
+- [Our World in Data (OWID)](https://ourworldindata.org/coronavirus) — for COVID-19 data  
+- [Oxford COVID-19 Government Response Tracker (OxCGRT)](https://www.bsg.ox.ac.uk/research/research-projects/covid-19-government-response-tracker) — for policy stringency data  
+- [Yahoo Finance](https://finance.yahoo.com/) — for exchange rate data  
+- `scikit-learn`, `SHAP`, and `pandas` communities — for open, transparent ML tools  
+- **OpenAI Assistant (GPT-5)** — for research collaboration, technical writing, and workflow automation  
+
 
 ⭐ **If you find this project insightful, please give it a star!**

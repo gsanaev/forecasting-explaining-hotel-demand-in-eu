@@ -1,9 +1,9 @@
-# OS / editor files
+# OS / Editor files
 .DS_Store
 .vscode/
 .idea/
 
-# Python
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
@@ -15,19 +15,28 @@ __pycache__/
 venv/
 env/
 
-# Notebooks checkpoints
-*.ipynb_checkpoints/
+# Notebook checkpoints
+.ipynb_checkpoints/
 
 # Data folders
+# (Keep structure via .gitkeep, ignore only heavy or raw files)
 data/raw/
 data/processed/
-outputs/
-models/
-figures/
+!data/**/.gitkeep
+!data/interim/
+!data/data_reserve/
 
-# Docs and temp files
+# Outputs (ignore large results but keep structure)
+outputs/models/
+outputs/figures/
+outputs/reports/
+!outputs/**/.gitkeep
+
+# Docs (keep HTML files for GitHub Pages)
+!docs/
 *.log
 *.tmp
 *.bak
+
+# Environment lock files
 uv.lock
-data/
